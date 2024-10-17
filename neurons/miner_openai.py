@@ -34,7 +34,7 @@ from base_miner import DETECTOR_REGISTRY
 from bitmind.base.miner import BaseMinerNeuron
 from bitmind.protocol import ImageSynapse
 from bitmind.utils.config import get_device
-from api.detect_image_api import DetectImageAPI
+from api.detect_image_api_openai import DetectImageOpenAI
 
 
 class Miner(BaseMinerNeuron):
@@ -44,7 +44,7 @@ class Miner(BaseMinerNeuron):
         if self.config.neuron.device == "auto":
             self.config.neuron.device = get_device()
         self.load_detector()
-        self.api = DetectImageAPI()
+        self.api = DetectImageOpenAI()
 
     def load_detector(self):
         self.deepfake_detector = DETECTOR_REGISTRY[self.config.neuron.detector](
@@ -76,10 +76,7 @@ class Miner(BaseMinerNeuron):
 
             image_bytes = base64.b64decode(synapse.image)
             print(f"Input synapse {synapse}")
-            print(f"Input synapse.image {synapse.image}")
             image = Image.open(io.BytesIO(image_bytes))
-
-            print(f"Input image opened {image}")
 
             return_result = -1
             # Call api
@@ -92,9 +89,9 @@ class Miner(BaseMinerNeuron):
                 return_result = self.api.check_image(img_name)
             except Exception as e:
                 print(e)
-            if return_result != -1:
+            if return_result != None:
                 print(f"Prediction by call API: {return_result}")
-                synapse.prediction = return_result
+                synapse.prediction = float(return_result)
                 return synapse
 
             print("Run default model")
