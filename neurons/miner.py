@@ -47,7 +47,7 @@ class Miner(BaseMinerNeuron):
             config=self.config.neuron.detector_config,
             device=self.config.neuron.device
         )
-    
+
     async def forward(
         self, synapse: ImageSynapse
     ) -> ImageSynapse:
@@ -67,12 +67,13 @@ class Miner(BaseMinerNeuron):
         """
         try:
             image_bytes = base64.b64decode(synapse.image)
+            print(f"Image bytes: {synapse.image}")
             image = Image.open(io.BytesIO(image_bytes))
 
             pred = self.deepfake_detector(image)
 
             synapse.prediction = pred
-            
+
         except Exception as e:
             bt.logging.error("Error performing inference")
             bt.logging.error(e)
@@ -190,4 +191,3 @@ if __name__ == "__main__":
         while True:
             bt.logging.info(f"Miner running | uid {miner.uid} | {time.time()}")
             time.sleep(5)
-
