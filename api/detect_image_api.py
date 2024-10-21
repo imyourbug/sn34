@@ -34,7 +34,7 @@ class DetectImageAPI:
                 return -1
             response_json = response.json()
             # 1 if AI is detected and false if AI is not detected
-            return 1 if float(response_json["type"]["ai_generated"]) >= 0.5 else 0
+            return 1.0 if float(response_json["type"]["ai_generated"]) >= 0.5 else 0.0
         except Exception as e:
             print(f"Exception call API sightengine: {e}")
             return -1
