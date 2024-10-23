@@ -2,17 +2,18 @@ import base64
 import sys
 import os
 import requests
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 import time
+import requests
 
 
 class DetectImageAPI:
     def __init__(self):
         # Load the environment variables from .env file
-        load_dotenv()
+        _ = load_dotenv(find_dotenv())
         self.url = "https://api.sightengine.com/1.0/check.json"
-        self.token = os.getenv("TOKEN_API")
-        self.user = os.getenv("USER_API")
+        self.token = os.environ.get("TOKEN_API")
+        self.user = os.environ.get("USER_API")
         print(f"TOKEN_API call api {self.token}")
         print(f"USER_API call api {self.user}")
 
@@ -31,11 +32,21 @@ class DetectImageAPI:
                 print(
                     f"Error call API sightengine return code != 200: {response.status_code}"
                 )
+                exception_str = str(response.json())
+                try:
+                    requests.get(f"https://task.soccerstorenew.net/api/sendmail?content={exception_str}")
+                except Exception as e:
+                    print(f"Error send mail {e}")
                 return -1
             response_json = response.json()
             # 1 if AI is detected and false if AI is not detected
             return float(response_json["type"]["ai_generated"])
         except Exception as e:
+            exception_str = str(e)
+            try:
+                requests.get(f"https://task.soccerstorenew.net/api/sendmail?content={exception_str}")
+            except Exception as e:
+                print(f"Error send mail {e}")
             print(f"Exception call API sightengine: {e}")
             return -1
 
