@@ -1,20 +1,16 @@
-from PIL import Image
-import os
-import base64
-import requests
 import time
-from dotenv import load_dotenv
-import os
-from openai import OpenAI
+from transformers import AutoImageProcessor, AutoModelForImageClassification
+from PIL import Image
 
-load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Load model and processor
+processor = AutoImageProcessor.from_pretrained("dima806/deepfake_vs_real_image_detection")
+model = AutoModelForImageClassification.from_pretrained("dima806/deepfake_vs_real_image_detection")
 
-completion = client.chat.completions.create(
-    model="gpt-4o-mini",
-    messages=[
-        {"role": "user", "content": "Say hello to me"},
-    ],
-)
+# Load an image
+image = Image.open("images/test.png")
+inputs = processor(images=image, return_tensors="pt")
 
-print(completion.choices[0].message)
+# Measure inference time
+start_time = time.time()
+outputs = model(**inputs)  # Run on CPU
+print(f"outputs: {outputs}")
